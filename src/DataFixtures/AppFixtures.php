@@ -21,6 +21,39 @@ class AppFixtures extends Fixture
      */
     private $faker;
 
+    private const USERS = [
+        [
+            'username' => 'sadmin',
+            'name' => 'Super Administrator',
+            'roles' => [User::ROLE_SUPER_ADMIN]
+        ],
+        [
+            'username' => 'admin',
+            'name' => 'Administrator',
+            'roles' => [User::ROLE_ADMIN]
+        ],
+        [
+            'username' => 'robert',
+            'name' => 'Robert Rob',
+            'roles' => [User::ROLE_WRITER]
+        ],
+        [
+            'username' => 'richard',
+            'name' => 'Richard Rich',
+            'roles' => [User::ROLE_WRITER]
+        ],
+        [
+            'username' => 'samantha',
+            'name' => 'Samantha Sam',
+            'roles' => [User::ROLE_EDITOR]
+        ],
+        [
+            'username' => 'nickolas',
+            'name' => 'Nickolas Nick',
+            'roles' => [User::ROLE_COMMENTATOR]
+        ]
+    ];
+
     public function __construct(UserPasswordEncoderInterface $passwordEncoder)
     {
         $this->passwordEncoder = $passwordEncoder;
@@ -38,14 +71,12 @@ class AppFixtures extends Fixture
 
     public function loadBlogPosts(ObjectManager $manager)
     {
-        $user = $this->getReference('admin');
-
         for ($i = 0; $i < 100; $i++) {
             $blogPost = (new BlogPost())
                 ->setTitle($this->faker->realText(30))
                 ->setPublished($this->faker->dateTimeThisYear)
                 ->setContent($this->faker->realText())
-                ->setAuthor($user)
+                ->setAuthor($this->getRandomUserReference(BlogPost::class))
                 ->setSlug($this->faker->slug);
 
             $this->addReference("blog_post_$i", $blogPost);
@@ -62,8 +93,8 @@ class AppFixtures extends Fixture
                 $comment = (new Comment())
                     ->setContent($this->faker->realText())
                     ->setPublished($this->faker->dateTimeThisYear)
-                    ->setAuthor($this->getReference("admin"))
-                    ->setPost($this->getReference("blog_post_$i"));
+                    ->setAuthor($this->getRandomUserReference(Comment::class))
+                    ->setBlogPost($this->getReference("blog_post_$i"));
 
                 $manager->persist($comment);
             }
@@ -72,15 +103,39 @@ class AppFixtures extends Fixture
 
     public function loadUsers(ObjectManager $manager)
     {
-        $user = (new User())
-            ->setUsername('admin')
-            ->setEmail('admin@blog.com')
-            ->setName('Gustavo Porto');
+        foreach (self::USERS as $userData) {
+            $user = (new User())
+                ->setUsername($userData['username'])
+                ->setEmail($userData['username'].'@blog.com')
+                ->setName($userData['name'])
+                ->setRoles($userData['roles']);
 
-        $user->setPassword($this->passwordEncoder->encodePassword($user, '123456'));
+            $user->setPassword($this->passwordEncoder->encodePassword($user, '123456aB#'));
 
-        $this->addReference('admin', $user);
+            $this->addReference('user_'.$user->getUsername(), $user);
 
-        $manager->persist($user);
+            $manager->persist($user);
+        }
+    }
+
+    public function getRandomUserReference($class): User
+    {
+        $randomUser = self::USERS[rand(0, sizeof(self::USERS) - 1)];
+        $canPost = count(
+            array_intersect($randomUser['roles'], [User::ROLE_SUPER_ADMIN, User::ROLE_ADMIN, User::ROLE_WRITER])
+        );
+        $canComment = count(
+            array_intersect($randomUser['roles'], [User::ROLE_SUPER_ADMIN, User::ROLE_ADMIN, User::ROLE_WRITER, User::ROLE_COMMENTATOR])
+        );
+
+        if ($class === BlogPost::class && !$canPost) {
+            return $this->getRandomUserReference($class);
+        }
+
+        if ($class === Comment::class && !$canComment) {
+            return $this->getRandomUserReference($class);
+        }
+
+        return $this->getReference('user_' . $randomUser['username']);
     }
 }

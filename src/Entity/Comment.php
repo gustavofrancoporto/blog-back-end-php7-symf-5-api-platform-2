@@ -5,54 +5,74 @@ namespace App\Entity;
 use ApiPlatform\Core\Annotation\ApiResource;
 use App\Repository\CommentRepository;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Security\Core\User\UserInterface;
+use Symfony\Component\Serializer\Annotation\Groups;
+use Symfony\Component\Validator\Constraints as Assert;
 
 /**
  * @ApiResource(
  *     itemOperations={
  *         "get",
  *         "put"={
- *             "access_control"="is_granted('IS_AUTHENTICATED_FULLY') and object.getAuthor() == user"
+ *             "security"="is_granted('ROLE_EDITOR') or (is_granted('ROLE_COMMENTATOR') and object.getAuthor() == user)"
  *         }
  *     },
  *     collectionOperations={
  *         "get",
  *         "post"={
- *             "access_control"="is_granted('IS_AUTHENTICATED_FULLY')"
+ *             "security"="is_granted('ROLE_COMMENTATOR')"
  *         }
+ *     },
+ *     subresourceOperations={
+ *         "api_blog_posts_comments_get_subresource"={
+ *             "normalization_context"={
+ *                 "groups"={"get-comments-with-author"}
+ *             }
+ *         }
+ *     },
+ *     denormalizationContext={
+ *         "groups"={"post"}
  *     }
  * )
  * @ORM\Entity(repositoryClass=CommentRepository::class)
  */
-class Comment
+class Comment implements AuthoredEntityInterface, PublishedDateEntityInterface
 {
     /**
      * @ORM\Id()
      * @ORM\GeneratedValue()
      * @ORM\Column(type="integer")
+     * @Groups({"get-comments-with-author"})
      */
     private $id;
 
     /**
      * @ORM\Column(type="text")
+     * @Assert\NotBlank()
+     * @Assert\Length(min=5, max=3000)
+     * @Groups({"get-comments-with-author", "post"})
      */
     private $content;
 
     /**
      * @ORM\Column(type="datetime")
+     * @Groups({"get-comments-with-author"})
      */
     private $published;
 
     /**
      * @ORM\ManyToOne(targetEntity=User::class, inversedBy="comments")
      * @ORM\JoinColumn(nullable=false)
+     * @Groups({"get-comments-with-author"})
      */
     private $author;
 
     /**
      * @ORM\ManyToOne(targetEntity=BlogPost::class, inversedBy="comments")
      * @ORM\JoinColumn(nullable=false)
+     * @Groups({"post"})
      */
-    private $post;
+    private $blogPost;
 
     public function getId(): ?int
     {
@@ -76,7 +96,7 @@ class Comment
         return $this->published;
     }
 
-    public function setPublished(\DateTimeInterface $published): self
+    public function setPublished(\DateTimeInterface $published): PublishedDateEntityInterface
     {
         $this->published = $published;
 
@@ -88,21 +108,21 @@ class Comment
         return $this->author;
     }
 
-    public function setAuthor(User $author): self
+    public function setAuthor(UserInterface $author): AuthoredEntityInterface
     {
         $this->author = $author;
 
         return $this;
     }
 
-    public function getPost(): BlogPost
+    public function getBlogPost(): BlogPost
     {
-        return $this->post;
+        return $this->blogPost;
     }
 
-    public function setPost(BlogPost $post): self
+    public function setBlogPost(BlogPost $blogPost): self
     {
-        $this->post = $post;
+        $this->blogPost = $blogPost;
 
         return $this;
     }
