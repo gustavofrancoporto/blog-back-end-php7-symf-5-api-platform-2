@@ -20,10 +20,7 @@ use Symfony\Component\Serializer\SerializerInterface;
  */
 class BlogController extends AbstractController
 {
-    /**
-     * @var BlogPostRepository
-     */
-    private $blogPostRepository;
+    private BlogPostRepository $blogPostRepository;
 
     public function __construct(BlogPostRepository $blogPostRepository)
     {

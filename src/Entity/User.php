@@ -44,6 +44,12 @@ use Symfony\Component\Validator\Constraints as Assert;
  *         }
  *     },
  *     collectionOperations={
+ *         "get"={
+ *             "security"="is_granted('ROLE_ADMIN')",
+ *             "normalization_context"={
+ *                 "groups"={"get"}
+ *             }
+ *         },
  *         "post"={
  *             "denormalization_context"={
  *                 "groups"={"post"}
@@ -73,17 +79,17 @@ class User implements UserInterface
      * @ORM\Id()
      * @ORM\GeneratedValue()
      * @ORM\Column(type="integer")
-     * @Groups({"get", "get-blog-post-with-author", "get-comment-with-author"})
+     * @Groups({"get", "get-blog-post-with-details", "get-comment-with-author"})
      */
-    private $id;
+    private ?int $id;
 
     /**
      * @ORM\Column(type="string", length=255)
-     * @Groups({"get", "post", "get-comment-with-author", "get-blog-post-with-author"})
+     * @Groups({"get", "post", "get-comment-with-author", "get-blog-post-with-details"})
      * @Assert\NotBlank(groups={"post"})
      * @Assert\Length(min=6, max=255, groups={"post"})
      */
-    private $username;
+    private ?string $username;
 
     /**
      * @ORM\Column(type="string", length=255)
@@ -95,7 +101,7 @@ class User implements UserInterface
      *     groups={"post"}
      * )
      */
-    private $password;
+    private ?string $password;
 
     /**
      * @Groups({"post"})
@@ -106,7 +112,7 @@ class User implements UserInterface
      *     groups={"post"}
      * )
      */
-    private $retypedPassword;
+    private ?string $retypedPassword;
 
     /**
      * @Groups({"put-reset-password"})
@@ -117,7 +123,7 @@ class User implements UserInterface
      *     groups={"put-reset-password"}
      * )
      */
-    private $newPassword;
+    private ?string $newPassword;
 
     /**
      * @Groups({"put-reset-password"})
@@ -128,22 +134,22 @@ class User implements UserInterface
      *     groups={"put-reset-password"}
      * )
      */
-    private $newRetypedPassword;
+    private ?string $newRetypedPassword;
 
     /**
      * @Groups({"put-reset-password"})
      * @Assert\NotBlank(groups={"put-reset-password"})
      * @UserPassword(groups={"put-reset-password"})
      */
-    private $oldPassword;
+    private ?string $oldPassword;
 
     /**
      * @ORM\Column(type="string", length=255)
-     * @Groups({"get", "post", "put", "get-comment-with-author", "get-blog-post-with-author"})
+     * @Groups({"get", "post", "put", "get-comment-with-author", "get-blog-post-with-details"})
      * @Assert\NotBlank(groups={"post"})
      * @Assert\Length(min=5, max=255, groups={"post", "put"})
      */
-    private $name;
+    private ?string $name;
 
     /**
      * @ORM\Column(type="string", length=255)
@@ -152,31 +158,48 @@ class User implements UserInterface
      * @Assert\Email(groups={"post", "put"})
      * @Assert\Length(min=6, max=255, groups={"post", "put"})
      */
-    private $email;
+    private ?string $email;
 
     /**
      * @ORM\OneToMany(targetEntity="App\Entity\BlogPost", mappedBy="author")
      * @Groups({"get"})
      */
-    private $posts;
+    private Collection $posts;
 
     /**
      * @ORM\OneToMany(targetEntity="App\Entity\Comment", mappedBy="author")
      * @Groups({"get"})
      */
-    private $comments;
+    private Collection $comments;
 
     /**
      * @ORM\Column(type="simple_array", length=200)
      * @Groups({"get-admin", "get-owner"})
      */
-    private $roles;
+    private array $roles;
+
+    /**
+     * @ORM\Column(type="datetime", nullable=true)
+     */
+    private ?\DateTimeInterface $passwordChangeDate;
+
+    /**
+     * @ORM\Column(type="boolean")
+     */
+    private bool $enabled;
+
+    /**
+     * @ORM\Column(type="string", length=40, nullable=true)
+     */
+    private ?string $confirmationToken;
 
     public function __construct()
     {
         $this->posts = new ArrayCollection();
         $this->comments = new ArrayCollection();
         $this->roles = self::DEFAULT_ROLES;
+        $this->enabled = false;
+        $this->confirmationToken = null;
     }
 
     public function getId(): ?int
@@ -312,6 +335,47 @@ class User implements UserInterface
     public function setOldPassword(string $oldPassword): self
     {
         $this->oldPassword = $oldPassword;
+
+        return $this;
+    }
+
+    public function getPasswordChangedDate(): ?\DateTimeInterface
+    {
+        return $this->passwordChangeDate;
+    }
+
+    public function setPasswordChangedDate(\DateTimeInterface $passwordChangeDate): self
+    {
+        $this->passwordChangeDate = $passwordChangeDate;
+
+        return $this;
+    }
+
+    public function passwordChangedAfter(\DateTimeInterface $date): bool
+    {
+        return $this->getPasswordChangedDate() !== null && $this->getPasswordChangedDate() > $date;
+    }
+
+    public function getEnabled(): ?bool
+    {
+        return $this->enabled;
+    }
+
+    public function setEnabled(bool $enabled): self
+    {
+        $this->enabled = $enabled;
+
+        return $this;
+    }
+
+    public function getConfirmationToken(): ?string
+    {
+        return $this->confirmationToken;
+    }
+
+    public function setConfirmationToken(?string $confirmationToken): self
+    {
+        $this->confirmationToken = $confirmationToken;
 
         return $this;
     }

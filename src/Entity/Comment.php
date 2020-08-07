@@ -11,6 +11,7 @@ use Symfony\Component\Validator\Constraints as Assert;
 
 /**
  * @ApiResource(
+ *     attributes={"order"={"published": "DESC"}},
  *     itemOperations={
  *         "get",
  *         "put"={
@@ -44,7 +45,7 @@ class Comment implements AuthoredEntityInterface, PublishedDateEntityInterface
      * @ORM\Column(type="integer")
      * @Groups({"get-comments-with-author"})
      */
-    private $id;
+    private ?int $id;
 
     /**
      * @ORM\Column(type="text")
@@ -52,27 +53,27 @@ class Comment implements AuthoredEntityInterface, PublishedDateEntityInterface
      * @Assert\Length(min=5, max=3000)
      * @Groups({"get-comments-with-author", "post"})
      */
-    private $content;
+    private ?string $content;
 
     /**
      * @ORM\Column(type="datetime")
      * @Groups({"get-comments-with-author"})
      */
-    private $published;
+    private ?\DateTimeInterface $published;
 
     /**
      * @ORM\ManyToOne(targetEntity=User::class, inversedBy="comments")
      * @ORM\JoinColumn(nullable=false)
      * @Groups({"get-comments-with-author"})
      */
-    private $author;
+    private User $author;
 
     /**
      * @ORM\ManyToOne(targetEntity=BlogPost::class, inversedBy="comments")
      * @ORM\JoinColumn(nullable=false)
      * @Groups({"post"})
      */
-    private $blogPost;
+    private BlogPost $blogPost;
 
     public function getId(): ?int
     {
