@@ -45,7 +45,7 @@ class Comment implements AuthoredEntityInterface, PublishedDateEntityInterface
      * @ORM\Column(type="integer")
      * @Groups({"get-comments-with-author"})
      */
-    private ?int $id;
+    private ?int $id = null;
 
     /**
      * @ORM\Column(type="text")
@@ -128,5 +128,8 @@ class Comment implements AuthoredEntityInterface, PublishedDateEntityInterface
         return $this;
     }
 
-
+    public function __toString(): string
+    {
+        return strlen($this->content) <= 20 ? $this->content : substr($this->content, 0, 20) . "...";
+    }
 }

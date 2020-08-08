@@ -39,7 +39,7 @@ final class Version20200805124735 extends AbstractMigration
         $this->addSql('CREATE TEMPORARY TABLE __temp__user AS SELECT id, username, password, name, email, roles FROM user');
         $this->addSql('DROP TABLE user');
         $this->addSql('CREATE TABLE user (id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, username VARCHAR(255) NOT NULL COLLATE BINARY, password VARCHAR(255) NOT NULL COLLATE BINARY, name VARCHAR(255) NOT NULL COLLATE BINARY, email VARCHAR(255) NOT NULL COLLATE BINARY, roles CLOB NOT NULL --(DC2Type:simple_array)
-        , password_change_date DATETIME DEFAULT NULL)');
+        , password_changed_date DATETIME DEFAULT NULL)');
         $this->addSql('INSERT INTO user (id, username, password, name, email, roles) SELECT id, username, password, name, email, roles FROM __temp__user');
         $this->addSql('DROP TABLE __temp__user');
     }

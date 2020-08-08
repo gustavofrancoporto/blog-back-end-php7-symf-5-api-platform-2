@@ -38,7 +38,6 @@ class UploadImageAction
             $this->entityManager->flush();
 
             $image->setFile(null);
-            $image->setUrl('/images/'.$image->getUrl());
 
             return $image;
         }

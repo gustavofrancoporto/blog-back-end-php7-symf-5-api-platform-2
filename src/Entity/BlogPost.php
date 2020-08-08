@@ -79,7 +79,7 @@ class BlogPost implements AuthoredEntityInterface, PublishedDateEntityInterface
      * @ORM\Column(type="integer")
      * @Groups({"get-blog-post-with-details"})
      */
-    private ?int $id;
+    private ?int $id = null;
 
     /**
      * @ORM\Column(type="string", length=255)
@@ -228,5 +228,10 @@ class BlogPost implements AuthoredEntityInterface, PublishedDateEntityInterface
     public function removeImage(Image $image): void
     {
         $this->images->removeElement($image);
+    }
+
+    public function __toString(): string
+    {
+        return $this->title;
     }
 }

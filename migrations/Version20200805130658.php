@@ -59,11 +59,11 @@ final class Version20200805130658 extends AbstractMigration
         $this->addSql('DROP TABLE __temp__comment');
         $this->addSql('CREATE INDEX IDX_9474526CF675F31B ON comment (author_id)');
         $this->addSql('CREATE INDEX IDX_9474526CA77FBEAF ON comment (blog_post_id)');
-        $this->addSql('CREATE TEMPORARY TABLE __temp__user AS SELECT id, username, password, name, email, roles, password_change_date FROM user');
+        $this->addSql('CREATE TEMPORARY TABLE __temp__user AS SELECT id, username, password, name, email, roles, password_changed_date FROM user');
         $this->addSql('DROP TABLE user');
         $this->addSql('CREATE TABLE user (id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, username VARCHAR(255) NOT NULL, password VARCHAR(255) NOT NULL, name VARCHAR(255) NOT NULL, email VARCHAR(255) NOT NULL, roles CLOB NOT NULL --(DC2Type:simple_array)
-        , password_change_date DATETIME DEFAULT NULL)');
-        $this->addSql('INSERT INTO user (id, username, password, name, email, roles, password_change_date) SELECT id, username, password, name, email, roles, password_change_date FROM __temp__user');
+        , password_changed_date DATETIME DEFAULT NULL)');
+        $this->addSql('INSERT INTO user (id, username, password, name, email, roles, password_changed_date) SELECT id, username, password, name, email, roles, password_changed_date FROM __temp__user');
         $this->addSql('DROP TABLE __temp__user');
     }
 }

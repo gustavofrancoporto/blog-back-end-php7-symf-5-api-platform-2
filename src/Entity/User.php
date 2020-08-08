@@ -81,7 +81,7 @@ class User implements UserInterface
      * @ORM\Column(type="integer")
      * @Groups({"get", "get-blog-post-with-details", "get-comment-with-author"})
      */
-    private ?int $id;
+    private ?int $id = null;
 
     /**
      * @ORM\Column(type="string", length=255)
@@ -181,7 +181,7 @@ class User implements UserInterface
     /**
      * @ORM\Column(type="datetime", nullable=true)
      */
-    private ?\DateTimeInterface $passwordChangeDate;
+    private ?\DateTimeInterface $passwordChangedDate;
 
     /**
      * @ORM\Column(type="boolean")
@@ -341,12 +341,12 @@ class User implements UserInterface
 
     public function getPasswordChangedDate(): ?\DateTimeInterface
     {
-        return $this->passwordChangeDate;
+        return $this->passwordChangedDate;
     }
 
-    public function setPasswordChangedDate(\DateTimeInterface $passwordChangeDate): self
+    public function setPasswordChangedDate(?\DateTimeInterface $passwordChangedDate): self
     {
-        $this->passwordChangeDate = $passwordChangeDate;
+        $this->passwordChangedDate = $passwordChangedDate;
 
         return $this;
     }
@@ -387,5 +387,10 @@ class User implements UserInterface
 
     public function eraseCredentials()
     {
+    }
+
+    public function __toString(): string
+    {
+        return $this->username;
     }
 }
