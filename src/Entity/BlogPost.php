@@ -115,7 +115,7 @@ class BlogPost implements AuthoredEntityInterface, PublishedDateEntityInterface
      * @ORM\JoinColumn(nullable=false)
      * @Groups({"get-blog-post-with-details"})
      */
-    private User $author;
+    private ?User $author = null;
 
     /**
      * @ORM\OneToMany(targetEntity=Comment::class, mappedBy="blogPost")
@@ -191,7 +191,7 @@ class BlogPost implements AuthoredEntityInterface, PublishedDateEntityInterface
         return $this;
     }
 
-    public function getAuthor(): User
+    public function getAuthor(): ?User
     {
         return $this->author;
     }

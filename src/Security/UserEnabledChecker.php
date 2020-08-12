@@ -1,8 +1,8 @@
 <?php
 
+declare(strict_types=1);
 
 namespace App\Security;
-
 
 use App\Entity\User;
 use Symfony\Component\Security\Core\Exception\AccountStatusException;

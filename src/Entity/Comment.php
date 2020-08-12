@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Entity;
 
 use ApiPlatform\Core\Annotation\ApiResource;
@@ -11,23 +13,32 @@ use Symfony\Component\Validator\Constraints as Assert;
 
 /**
  * @ApiResource(
- *     attributes={"order"={"published": "DESC"}},
+ *     attributes={
+ *         "order"={"published": "DESC"}
+ *     },
  *     itemOperations={
- *         "get",
+ *         "get"={
+ *             "normalization_context"={
+ *                 "groups"={"get-comment-with-author"}
+ *             }
+ *         },
  *         "put"={
- *             "security"="is_granted('ROLE_EDITOR') or (is_granted('ROLE_COMMENTATOR') and object.getAuthor() == user)"
+ *             "access_control"="is_granted('ROLE_EDITOR') or (is_granted('ROLE_COMMENTATOR') and object.getAuthor() == user)"
  *         }
  *     },
  *     collectionOperations={
  *         "get",
  *         "post"={
- *             "security"="is_granted('ROLE_COMMENTATOR')"
+ *             "access_control"="is_granted('ROLE_COMMENTATOR')",
+ *             "normalization_context"={
+ *                 "groups"={"get-comment-with-author"}
+ *             }
  *         }
  *     },
  *     subresourceOperations={
  *         "api_blog_posts_comments_get_subresource"={
  *             "normalization_context"={
- *                 "groups"={"get-comments-with-author"}
+ *                 "groups"={"get-comment-with-author"}
  *             }
  *         }
  *     },
@@ -43,39 +54,39 @@ class Comment implements AuthoredEntityInterface, PublishedDateEntityInterface
      * @ORM\Id()
      * @ORM\GeneratedValue()
      * @ORM\Column(type="integer")
-     * @Groups({"get-comments-with-author"})
+     * @Groups({"get-comment-with-author"})
      */
-    private ?int $id = null;
+    private $id;
 
     /**
      * @ORM\Column(type="text")
+     * @Groups({"post", "get-comment-with-author"})
      * @Assert\NotBlank()
      * @Assert\Length(min=5, max=3000)
-     * @Groups({"get-comments-with-author", "post"})
      */
-    private ?string $content;
+    private $content;
 
     /**
      * @ORM\Column(type="datetime")
-     * @Groups({"get-comments-with-author"})
+     * @Groups({"get-comment-with-author"})
      */
-    private ?\DateTimeInterface $published;
+    private $published;
 
     /**
      * @ORM\ManyToOne(targetEntity=User::class, inversedBy="comments")
      * @ORM\JoinColumn(nullable=false)
-     * @Groups({"get-comments-with-author"})
+     * @Groups({"get-comment-with-author"})
      */
-    private User $author;
+    private $author;
 
     /**
      * @ORM\ManyToOne(targetEntity=BlogPost::class, inversedBy="comments")
      * @ORM\JoinColumn(nullable=false)
-     * @Groups({"post"})
+     * @Groups({"get-comment-with-author", "post"})
      */
-    private BlogPost $blogPost;
+    private $blogPost;
 
-    public function getId(): ?int
+    public function getId()
     {
         return $this->id;
     }
@@ -104,7 +115,10 @@ class Comment implements AuthoredEntityInterface, PublishedDateEntityInterface
         return $this;
     }
 
-    public function getAuthor(): User
+    /**
+     * @return User
+     */
+    public function getAuthor(): ?User
     {
         return $this->author;
     }
@@ -116,7 +130,7 @@ class Comment implements AuthoredEntityInterface, PublishedDateEntityInterface
         return $this;
     }
 
-    public function getBlogPost(): BlogPost
+    public function getBlogPost(): ?BlogPost
     {
         return $this->blogPost;
     }
@@ -128,7 +142,7 @@ class Comment implements AuthoredEntityInterface, PublishedDateEntityInterface
         return $this;
     }
 
-    public function __toString(): string
+    public function __toString()
     {
         return strlen($this->content) <= 20 ? $this->content : substr($this->content, 0, 20) . "...";
     }

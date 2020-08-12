@@ -1,8 +1,8 @@
 <?php
 
+declare(strict_types=1);
 
 namespace App\Security;
-
 
 use App\Entity\User;
 use Lexik\Bundle\JWTAuthenticationBundle\Exception\ExpiredTokenException;
@@ -27,7 +27,7 @@ class TokenAuthenticator extends JWTTokenAuthenticator
         /** @var User $user */
         $user = parent::getUser($preAuthToken, $userProvider);
 
-        $tokenCreatedDate = \DateTime::createFromFormat( 'U', $preAuthToken->getPayload()['iat'] );
+        $tokenCreatedDate = \DateTime::createFromFormat( 'U', strval($preAuthToken->getPayload()['iat']) );
 
         if ($user->passwordChangedAfter($tokenCreatedDate)) {
             throw new ExpiredTokenException();

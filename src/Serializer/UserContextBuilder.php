@@ -1,8 +1,8 @@
 <?php
 
+declare(strict_types=1);
 
 namespace App\Serializer;
-
 
 use ApiPlatform\Core\Serializer\SerializerContextBuilderInterface;
 use App\Entity\User;

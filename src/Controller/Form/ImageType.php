@@ -1,8 +1,8 @@
 <?php
 
+declare(strict_types=1);
 
 namespace App\Controller\Form;
-
 
 use App\Entity\Image;
 use Symfony\Component\Form\AbstractType;

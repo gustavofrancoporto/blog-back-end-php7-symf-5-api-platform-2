@@ -1,0 +1,17 @@
+services:
+    _defaults:
+        autowire: true
+        autoconfigure: true
+
+    App\Tests\Behat\:
+        resource: '../tests/Behat/*'
+
+    behatch.http_call.request:
+        class: Behatch\HttpCall\Request
+        arguments:
+            - '@behat.mink'
+        public: false
+
+    App\Tests\Behat\FeatureContext:
+        arguments:
+            $request: '@behatch.http_call.request'
