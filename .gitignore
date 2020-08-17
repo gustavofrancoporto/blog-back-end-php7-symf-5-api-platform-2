@@ -26,4 +26,7 @@
 ###> friends-of-behat/symfony-extension ###
 /behat.yml
 ###< friends-of-behat/symfony-extension ###
+
 /public/images/*.jpg
+/features/fixtures/*.jpg
+/bin/phpunit
