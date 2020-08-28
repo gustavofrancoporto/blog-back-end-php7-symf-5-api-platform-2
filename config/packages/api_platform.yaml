@@ -5,13 +5,13 @@ api_platform:
         json: ['application/merge-patch+json']
     swagger:
         versions: [3]
-#    collection:
-#        pagination:
+    collection:
+        pagination:
 #            enabled: false
 #            page_parameter_name: _page
 #            client_enabled: true
 #            enabled_parameter_name: pagination
-#            items_per_page: 4
+            items_per_page: 10
 #            client_items_per_page: true
 #            items_per_page_parameter_name: pageSize
 #            maximum_items_per_page: 20

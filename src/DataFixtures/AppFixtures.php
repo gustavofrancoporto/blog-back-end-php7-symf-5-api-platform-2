@@ -124,7 +124,7 @@ class AppFixtures extends Fixture
                 ->setEnabled($userData['enabled'])
                 ->setConfirmationToken($userData['enabled'] ? null : $this->tokenGenerator->getRandomSecureToken());
 
-            $user->setPassword($this->passwordEncoder->encodePassword($user, '123456aB#'));
+            $user->setPassword($this->passwordEncoder->encodePassword($user, '123aB#'));
 
             $this->addReference('user_'.$user->getUsername(), $user);
 

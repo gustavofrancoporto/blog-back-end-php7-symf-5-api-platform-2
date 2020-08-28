@@ -102,7 +102,7 @@ class User implements UserInterface
      *     groups={"post"}
      * )
      */
-    private ?string $password;
+    private ?string $password = null;
 
     /**
      * @Groups({"post"})
@@ -113,7 +113,7 @@ class User implements UserInterface
      *     groups={"post"}
      * )
      */
-    private ?string $retypedPassword;
+    private ?string $retypedPassword = null;
 
     /**
      * @Groups({"put-reset-password"})
